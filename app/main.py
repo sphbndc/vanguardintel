@@ -12,6 +12,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -128,6 +129,23 @@ app = FastAPI(
     openapi_url=None,
     lifespan=lifespan,
 )
+
+# Same-origin Render hosting needs no CORS. When the optional Vercel frontend is
+# used, explicitly list its origin(s) rather than allowing arbitrary websites.
+allowed_frontend_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
+    if origin.strip()
+]
+if allowed_frontend_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_frontend_origins,
+        allow_credentials=False,
+        allow_methods=["GET"],
+        allow_headers=["Accept"],
+        max_age=600,
+    )
 
 # Vite emits immutable bundles under /assets and copies public source icons to /sources.
 # check_dir=False keeps API startup available before the first frontend production build.

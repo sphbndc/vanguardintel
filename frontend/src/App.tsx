@@ -12,6 +12,8 @@ const sourceLogos = [
   { name: "NVD enrichment", image: "/sources/nvd.svg" },
 ];
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
 function formatDate(value?: string) {
   if (!value) return "Awaiting snapshot";
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -35,7 +37,7 @@ export default function App() {
   const loadThreats = useCallback(async () => {
     setLoading(true); setError("");
     try {
-      const response = await fetch("/api/v1/threats", { headers: { Accept: "application/json" } });
+      const response = await fetch(`${apiBaseUrl}/api/v1/threats`, { headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error(`API returned ${response.status}`);
       setData(await response.json() as ThreatResponse);
     } catch (caught) {

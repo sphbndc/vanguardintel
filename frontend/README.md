@@ -34,6 +34,8 @@ For the integrated production-style route, run `npm run build` and open <http://
 
 The repository also includes a Docker-based Render Free deployment. The multi-stage image builds this frontend and packages it with FastAPI; see the root [`render.yaml`](../render.yaml) and [`Dockerfile`](../Dockerfile). SQLite history is intentionally ephemeral on Render Free.
 
+For an optional separate Vercel deployment, use `frontend` as the project root, `npm run build` as the build command, and `dist` as the output directory. Set `VITE_API_BASE_URL` to the Render API origin; configure the matching Vercel origin in Render's `FRONTEND_ORIGINS` variable.
+
 ## Starting from a fresh React app
 
 If you move this surface into a separate project, the equivalent setup is:

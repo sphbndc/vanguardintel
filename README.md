@@ -43,6 +43,7 @@ Open <http://127.0.0.1:8000>. FastAPI serves the built React dashboard at `/`; t
 | `OTX_API_KEY` | No | Enables the authenticated `/pulses/subscribed` OTX collection. Without it, OTX reports `unconfigured`. |
 | `GITHUB_TOKEN` | No | Raises GitHub API rate limits. Public advisories work without a token. |
 | `HTTP_TIMEOUT_SECONDS` | No | Overall upstream request timeout; defaults to 12 seconds. |
+| `FRONTEND_ORIGINS` | No | Comma-separated HTTPS origins allowed to call the API when hosting the frontend separately (for example, Vercel). |
 
 Never commit `.env` or API keys. For production, terminate TLS at a trusted reverse proxy, use a secrets manager, pin allowed hosts/origins, and replace the single-process cache with Redis if running multiple workers.
 
@@ -63,3 +64,7 @@ The React/TypeScript dashboard lives under `frontend/` and contains the shadcn-c
 The repository includes a multi-stage [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). In Render, choose **New → Blueprint**, connect this repository, and deploy the blueprint. Render builds the React bundle into the Docker image, serves it through FastAPI, and uses `/health` for health checks. Add `OTX_API_KEY` and `GITHUB_TOKEN` as secret environment variables in the Render dashboard when available.
 
 The free plan has an ephemeral filesystem: Render documents that local SQLite files are lost when a service redeploys, restarts, or spins down. This project therefore treats SQLite history as a best-effort 90-day window and shows that limitation in the dashboard. A persistent Render disk requires a paid service; an external managed PostgreSQL database is the durable upgrade path.
+
+## Optional Vercel frontend
+
+Render is the recommended full-stack deployment. If you also want a separate Vercel frontend, import this repository in Vercel with the root directory set to `frontend`, build command `npm run build`, and output directory `dist`. Set `VITE_API_BASE_URL` to the deployed Render URL, then set `FRONTEND_ORIGINS` on Render to the exact Vercel origin (for example, `https://vanguardintel.vercel.app`).

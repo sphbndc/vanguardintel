@@ -11,6 +11,8 @@ services:
         sync: false
       - key: GITHUB_TOKEN
         sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
       - key: THREAT_RETENTION_DAYS
         value: "90"
       - key: MAX_API_RECORDS
