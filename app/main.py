@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -177,14 +177,3 @@ async def get_threats() -> dict[str, Any]:
 async def health() -> dict[str, str]:
     return {"status": "ok"}
 
-
-@app.get("/{path:path}", response_class=HTMLResponse, include_in_schema=False)
-async def frontend_fallback(path: str):
-    """Serve the SPA shell for extensionless client-side routes such as /matrix."""
-    requested = Path(path)
-    if requested.name and "." in requested.name:
-        raise HTTPException(status_code=404, detail="Not found")
-    frontend_index = FRONTEND_DIST / "index.html"
-    if frontend_index.is_file():
-        return FileResponse(frontend_index)
-    raise HTTPException(status_code=404, detail="Frontend build unavailable")

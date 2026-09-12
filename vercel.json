@@ -1,10 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd frontend && npm ci && npm run build",
-  "rewrites": [
-    { "source": "/matrix", "destination": "/" },
-    { "source": "/matrix/", "destination": "/" }
-  ],
   "functions": {
     "app/main.py": {
       "maxDuration": 60,
