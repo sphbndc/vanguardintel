@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: vanguardintel
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: OTX_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: THREAT_RETENTION_DAYS
+        value: "90"
+      - key: MAX_API_RECORDS
+        value: "250"
+      - key: DATABASE_PATH
+        value: /tmp/vanguardintel.db

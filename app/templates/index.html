@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vanguard Intel correlates open-source threat intelligence into analyst-ready patch and response actions.">
+  <title>Vanguard Intel — Threat Intelligence Operations</title>
+  <script>
+    (() => {
+      const saved = localStorage.getItem('vanguard-theme');
+      const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', dark);
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background:#fcfcfc;--foreground:#0d1117;--card:#fff;--card-foreground:#0d1117;
+      --primary:#e61919;--primary-hover:#c91414;--secondary:#24335c;--muted:#f4f4f5;
+      --muted-foreground:#5f5f68;--accent:#ffafbd;--border:#e4e4e7;--ring:#e61919;
+      --success:#047857;--warning:#b45309;--radius:.75rem;--shadow:0 4px 18px -5px rgb(0 0 0/.14);
+    }
+    .dark {
+      --background:#0d0e12;--foreground:#fcfcfc;--card:#161922;--card-foreground:#fcfcfc;
+      --primary:#ff2e2e;--primary-hover:#ff4b4b;--secondary:#1a233b;--muted:#27272a;
+      --muted-foreground:#b3b3bc;--accent:#ff5e78;--border:#303038;--ring:#ff2e2e;
+      --success:#34d399;--warning:#fbbf24;--shadow:0 8px 24px -8px rgb(0 0 0/.65);
+    }
+    * { box-sizing:border-box; }
+    button,a,select { touch-action:manipulation; }
+    html { scroll-behavior:smooth; color-scheme:light; }
+    html.dark { color-scheme:dark; }
+    body { margin:0;background:var(--background);color:var(--foreground);font-family:Inter,sans-serif;letter-spacing:-.01em; }
+    .mono { font-family:'JetBrains Mono',monospace;letter-spacing:-.025em; }
+    .surface { background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow); }
+    .muted { color:var(--muted-foreground); }
+    .border-token { border-color:var(--border); }
+    .focusable:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline:3px solid color-mix(in srgb,var(--ring) 32%,transparent);outline-offset:2px;
+    }
+    .grid-field { background-image:linear-gradient(to right,color-mix(in srgb,var(--border) 48%,transparent) 1px,transparent 1px),linear-gradient(to bottom,color-mix(in srgb,var(--border) 48%,transparent) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,black,transparent 92%); }
+    .hero-glow { background:radial-gradient(circle,color-mix(in srgb,var(--primary) 18%,transparent),transparent 66%);filter:blur(16px); }
+    .status-dot { width:.5rem;height:.5rem;border-radius:999px;background:currentColor;box-shadow:0 0 0 4px color-mix(in srgb,currentColor 14%,transparent); }
+    .severity-critical { color:#dc2626;background:#fef2f2;border-color:#fecaca; }
+    .severity-high { color:#b45309;background:#fffbeb;border-color:#fde68a; }
+    .dark .severity-critical { color:#fca5a5;background:#450a0a;border-color:#7f1d1d; }
+    .dark .severity-high { color:#fcd34d;background:#451a03;border-color:#78350f; }
+    .source-cisa { border-top-color:var(--primary); }
+    .source-alienvault-otx { border-top-color:#06b6d4; }
+    .source-github-advisory { border-top-color:#8b5cf6; }
+    .threat-card { transition:border-color 180ms ease,box-shadow 180ms ease,transform 180ms ease; }
+    .threat-card:hover { border-color:color-mix(in srgb,var(--primary) 42%,var(--border));box-shadow:0 14px 36px -18px rgb(0 0 0/.55);transform:translateY(-1px); }
+    .skeleton { background:linear-gradient(90deg,var(--muted) 25%,color-mix(in srgb,var(--muted) 62%,var(--card)) 50%,var(--muted) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite; }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+    .modal-panel { animation:modal-in 180ms ease-out; }
+    @keyframes modal-in { from { opacity:0;transform:translateY(12px) scale(.985); } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important; } }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+  <a href="#intelligence" class="focusable fixed left-4 top-3 z-[100] -translate-y-20 rounded-lg bg-[var(--primary)] px-4 py-3 font-semibold text-white transition-transform focus:translate-y-0">Skip to intelligence</a>
+
+  <header class="sticky top-0 z-40 border-b border-token bg-[color:var(--background)]/90 backdrop-blur-xl">
+    <nav class="mx-auto flex h-16 max-w-[1480px] items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Primary navigation">
+      <a href="#top" class="focusable flex min-h-11 items-center gap-3 rounded-lg" aria-label="Vanguard Intel home">
+        <span class="relative grid h-9 w-9 place-items-center rounded-lg bg-[var(--primary)] text-white shadow-lg shadow-red-500/20" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="2"><path d="m5 4 7 16 7-16-7 5-7-5Z"/><path d="m8.5 7 3.5 8 3.5-8"/></svg>
+        </span>
+        <span><span class="block text-sm font-extrabold tracking-[.16em]">VANGUARD</span><span class="mono block text-[10px] font-medium tracking-[.32em] text-[var(--primary)]">INTEL</span></span>
+      </a>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <span id="nav-status" class="hidden items-center gap-2 rounded-full border border-token bg-[var(--card)] px-3 py-2 text-xs font-semibold sm:flex" aria-live="polite"><span class="status-dot text-amber-500"></span><span>Connecting</span></span>
+        <button id="theme-toggle" type="button" class="focusable grid h-11 w-11 cursor-pointer place-items-center rounded-lg border border-token bg-[var(--card)] transition-colors hover:bg-[var(--muted)]" aria-label="Switch to light theme" aria-pressed="true">
+          <svg id="sun-icon" viewBox="0 0 24 24" fill="none" class="hidden h-5 w-5 dark:block" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+          <svg id="moon-icon" viewBox="0 0 24 24" fill="none" class="h-5 w-5 dark:hidden" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="relative isolate overflow-hidden border-b border-token">
+      <div class="grid-field absolute inset-0 -z-20" aria-hidden="true"></div><div class="hero-glow absolute -right-32 -top-32 -z-10 h-[34rem] w-[34rem]" aria-hidden="true"></div>
+      <div class="mx-auto grid max-w-[1480px] gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:px-8 lg:py-24">
+        <div class="max-w-3xl">
+          <div class="mono mb-6 inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[.14em] text-[var(--primary)]"><span class="status-dot"></span>Open-source intelligence operations</div>
+          <h1 class="max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-[-.045em] sm:text-5xl lg:text-7xl">Turn threat noise into <span class="text-[var(--primary)]">defensible action.</span></h1>
+          <p class="mt-6 max-w-2xl text-base leading-7 muted sm:text-lg">Vanguard Intel correlates exploited vulnerabilities, community indicators, and critical software advisories—then converts each signal into patch guidance and a Tier 1 response plan.</p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="#intelligence" class="focusable inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-colors hover:bg-[var(--primary-hover)]">Open actionability matrix<svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+            <button id="refresh-button" type="button" class="focusable inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-token bg-[var(--card)] px-5 py-3 text-sm font-semibold transition-colors hover:bg-[var(--muted)]"><svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66L20 14"/><path d="M20 6v5h-5"/></svg><span>Refresh snapshot</span></button>
+          </div>
+          <p class="mono mt-4 text-[11px] muted">15-minute cache · read-only OSINT · analyst validation required</p>
+        </div>
+
+        <div class="surface overflow-hidden rounded-2xl">
+          <div class="flex items-center justify-between border-b border-token px-5 py-4"><div><p class="mono text-[10px] font-semibold uppercase tracking-[.18em] muted">Collection fabric</p><h2 class="mt-1 text-base font-bold">OSINT source telemetry</h2></div><span id="source-count" class="mono rounded-md bg-[var(--muted)] px-2 py-1 text-xs">0 / 3 online</span></div>
+          <div id="source-list" class="divide-y divide-[var(--border)]" aria-live="polite" aria-busy="true">
+            <div class="flex items-center gap-4 p-5"><span class="skeleton h-10 w-10 rounded-lg"></span><div class="flex-1"><div class="skeleton h-3 w-32 rounded"></div><div class="skeleton mt-2 h-2.5 w-48 rounded"></div></div></div>
+            <div class="flex items-center gap-4 p-5"><span class="skeleton h-10 w-10 rounded-lg"></span><div class="flex-1"><div class="skeleton h-3 w-36 rounded"></div><div class="skeleton mt-2 h-2.5 w-40 rounded"></div></div></div>
+            <div class="flex items-center gap-4 p-5"><span class="skeleton h-10 w-10 rounded-lg"></span><div class="flex-1"><div class="skeleton h-3 w-40 rounded"></div><div class="skeleton mt-2 h-2.5 w-44 rounded"></div></div></div>
+          </div>
+          <div class="border-t border-token bg-[var(--muted)]/60 px-5 py-3"><p id="last-updated" class="mono text-[10px] uppercase tracking-wider muted">Awaiting first snapshot</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-[1480px] px-4 py-8 sm:px-6 lg:px-8" aria-label="Threat summary">
+      <div id="metrics" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div class="surface rounded-xl p-4"><p class="mono text-[10px] uppercase tracking-widest muted">Total signals</p><p data-stat="total" class="mt-2 text-3xl font-extrabold">—</p></div>
+        <div class="surface rounded-xl p-4"><p class="mono text-[10px] uppercase tracking-widest muted">Critical</p><p data-stat="critical" class="mt-2 text-3xl font-extrabold text-[var(--primary)]">—</p></div>
+        <div class="surface rounded-xl p-4"><p class="mono text-[10px] uppercase tracking-widest muted">High priority</p><p data-stat="high" class="mt-2 text-3xl font-extrabold text-amber-600 dark:text-amber-400">—</p></div>
+        <div class="surface rounded-xl p-4"><p class="mono text-[10px] uppercase tracking-widest muted">Sources online</p><p data-stat="sources_operational" class="mt-2 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">—</p></div>
+      </div>
+    </section>
+
+    <section id="intelligence" class="mx-auto max-w-[1480px] scroll-mt-24 px-4 pb-20 sm:px-6 lg:px-8">
+      <div class="mb-6 flex flex-col gap-5 border-b border-token pb-6 xl:flex-row xl:items-end xl:justify-between">
+        <div><p class="mono text-xs font-semibold uppercase tracking-[.16em] text-[var(--primary)]">Prioritized intelligence queue</p><h2 class="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">The Actionability Matrix</h2><p class="mt-2 max-w-2xl text-sm leading-6 muted">Threat context on the left. Containment, detection, and remediation evidence on the right.</p></div>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <label class="relative block"><span class="sr-only">Search intelligence</span><svg viewBox="0 0 24 24" fill="none" class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 muted" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="search-input" type="search" placeholder="Search CVE, product, IoC…" class="focusable min-h-11 w-full rounded-lg border border-token bg-[var(--card)] py-2 pl-10 pr-4 text-sm sm:w-64"></label>
+          <label><span class="sr-only">Filter by source</span><select id="source-filter" class="focusable min-h-11 w-full cursor-pointer rounded-lg border border-token bg-[var(--card)] px-3 py-2 text-sm sm:w-48"><option value="all">All sources</option><option value="CISA KEV">CISA KEV</option><option value="AlienVault OTX">AlienVault OTX</option><option value="GitHub Advisory">GitHub Advisories</option></select></label>
+        </div>
+      </div>
+
+      <div id="api-notice" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm" role="status"></div>
+      <div id="threat-list" class="space-y-4" aria-live="polite" aria-busy="true"></div>
+      <div class="mt-6 flex justify-center"><button id="load-more" type="button" class="focusable hidden min-h-12 cursor-pointer rounded-xl border border-token bg-[var(--card)] px-5 py-3 text-sm font-bold transition-colors hover:bg-[var(--muted)]">Load more intelligence</button></div>
+      <div id="empty-state" class="surface hidden rounded-2xl px-6 py-16 text-center"><svg viewBox="0 0 24 24" fill="none" class="mx-auto h-10 w-10 muted" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16M7 12h10m-7 5h4"/><circle cx="12" cy="12" r="10"/></svg><h3 class="mt-4 font-bold">No matching intelligence</h3><p class="mt-2 text-sm muted">Adjust the search or source filter to widen the queue.</p></div>
+    </section>
+  </main>
+
+  <footer class="border-t border-token"><div class="mx-auto flex max-w-[1480px] flex-col gap-3 px-4 py-8 text-xs muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p>Vanguard Intel v{{ app_version }} · Portfolio-grade SOC automation prototype</p><p class="mono">CISA KEV · AlienVault OTX · GitHub Advisory Database</p></div></footer>
+
+  <div id="triage-modal" class="fixed inset-0 z-50 hidden items-end justify-center bg-slate-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl border border-token bg-[var(--card)] shadow-2xl sm:rounded-2xl">
+      <div class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-token bg-[var(--card)] px-5 py-4 sm:px-6"><div><p class="mono text-[10px] font-semibold uppercase tracking-[.16em] text-[var(--primary)]">Tier 1 response simulation</p><h2 id="modal-title" class="mt-1 text-lg font-bold">Analyst triage checklist</h2><p id="modal-threat" class="mt-1 text-xs muted"></p></div><button id="modal-close" type="button" class="focusable grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-token transition-colors hover:bg-[var(--muted)]" aria-label="Close triage simulator"><svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <div class="px-5 py-6 sm:px-6"><div id="modal-playbook" class="space-y-3"></div><div class="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-5 text-amber-800 dark:text-amber-200"><strong>Simulation only.</strong> Validate scope, evidence, and change controls before executing containment or remediation in a production environment.</div></div>
+    </div>
+  </div>
+
+  <script>
+    const state = { threats: [], query: '', source: 'all', visibleLimit: 15, lastFocus: null };
+    const els = {
+      list: document.querySelector('#threat-list'), empty: document.querySelector('#empty-state'), notice: document.querySelector('#api-notice'),
+      sourceList: document.querySelector('#source-list'), sourceCount: document.querySelector('#source-count'), updated: document.querySelector('#last-updated'),
+      navStatus: document.querySelector('#nav-status'), modal: document.querySelector('#triage-modal'), modalThreat: document.querySelector('#modal-threat'), playbook: document.querySelector('#modal-playbook')
+    };
+    const icons = {
+      shield: '<svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4.5 6v5.4c0 4.5 3.2 7.8 7.5 9.6 4.3-1.8 7.5-5.1 7.5-9.6V6L12 3Z"/><path d="m9 12 2 2 4-4"/></svg>',
+      pulse: '<svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>',
+      code: '<svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m8 9-3 3 3 3m8-6 3 3-3 3m-2-9-4 12"/></svg>'
+    };
+    const sourceInfo = {
+      'CISA KEV': { icon: icons.shield, label: 'Known exploited vulnerabilities' },
+      'AlienVault OTX': { icon: icons.pulse, label: 'Community pulses & indicators' },
+      'GitHub Advisory': { icon: icons.code, label: 'Critical software advisories' }
+    };
+
+    function escapeHtml(value = '') { const node = document.createElement('div'); node.textContent = String(value); return node.innerHTML; }
+    function safeUrl(value = '') { try { const url = new URL(value, location.origin); return ['http:', 'https:'].includes(url.protocol) ? url.href : '#'; } catch { return '#'; } }
+    function slug(value = '') { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+    function formatDate(value) { if (!value) return 'Date unavailable'; const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value; const date = new Date(normalized); return Number.isNaN(date.valueOf()) ? String(value) : new Intl.DateTimeFormat(undefined, { year:'numeric', month:'short', day:'numeric' }).format(date); }
+
+    function setLoading() {
+      els.list.setAttribute('aria-busy', 'true');
+      els.list.innerHTML = Array.from({length:3}, () => `<article class="surface overflow-hidden rounded-2xl"><div class="grid lg:grid-cols-2"><div class="p-5 sm:p-6"><div class="skeleton h-4 w-28 rounded"></div><div class="skeleton mt-4 h-6 w-4/5 rounded"></div><div class="skeleton mt-5 h-3 w-full rounded"></div><div class="skeleton mt-2 h-3 w-3/4 rounded"></div></div><div class="border-t border-token p-5 sm:p-6 lg:border-l lg:border-t-0"><div class="skeleton h-4 w-36 rounded"></div><div class="skeleton mt-4 h-16 w-full rounded"></div></div></div></article>`).join('');
+    }
+
+    async function loadThreats() {
+      setLoading();
+      const refresh = document.querySelector('#refresh-button'); refresh.disabled = true; refresh.classList.add('opacity-60'); refresh.querySelector('span').textContent = 'Loading snapshot';
+      try {
+        const response = await fetch('/api/v1/threats', { headers: { Accept:'application/json' } });
+        if (!response.ok) throw new Error(`API returned ${response.status}`);
+        const data = await response.json(); state.threats = data.threats || [];
+        renderMetrics(data.stats || {}); renderSources(data.sources || []); renderStatus(data); renderThreats();
+      } catch (error) {
+        state.threats = []; renderThreats();
+        els.notice.className = 'mb-5 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-200';
+        els.notice.textContent = `The intelligence API could not be reached. ${error.message}`;
+        setNavStatus('degraded');
+      } finally {
+        refresh.disabled = false; refresh.classList.remove('opacity-60'); refresh.querySelector('span').textContent = 'Refresh snapshot'; els.list.setAttribute('aria-busy', 'false');
+      }
+    }
+
+    function renderMetrics(stats) { document.querySelectorAll('[data-stat]').forEach(el => el.textContent = Number(stats[el.dataset.stat] || 0).toLocaleString()); }
+    function setNavStatus(status) {
+      const degraded = status !== 'operational';
+      els.navStatus.innerHTML = `<span class="status-dot ${degraded ? 'text-amber-500' : 'text-emerald-500'}"></span><span>${degraded ? 'Partial coverage' : 'Sources healthy'}</span>`;
+    }
+    function renderStatus(data) {
+      setNavStatus(data.status);
+      els.updated.textContent = `Snapshot ${formatDate(data.generated_at)} · cache ${data.cache?.state || 'unknown'}`;
+      if (data.status === 'degraded') {
+        els.notice.className = 'mb-5 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200';
+        els.notice.textContent = data.message || 'Coverage is partial. Available intelligence is shown below; review source telemetry for details.';
+      } else els.notice.className = 'hidden';
+    }
+    function renderSources(sources) {
+      const operational = sources.filter(s => s.status === 'operational').length;
+      els.sourceCount.textContent = `${operational} / ${sources.length || 3} online`;
+      els.sourceList.innerHTML = sources.map(source => {
+        const info = sourceInfo[source.source] || { icon: icons.pulse, label:'OSINT source' };
+        const ok = source.status === 'operational'; const color = ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400';
+        return `<div class="flex items-center gap-4 p-5"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[var(--muted)] ${color}">${info.icon}</span><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><h3 class="truncate text-sm font-bold">${escapeHtml(source.source)}</h3><span class="mono ${color} text-[10px] font-semibold uppercase">${escapeHtml(source.status)}</span></div><p class="mt-1 truncate text-xs muted">${escapeHtml(source.message || `${source.count} signals · ${info.label}`)}</p></div></div>`;
+      }).join(''); els.sourceList.setAttribute('aria-busy','false');
+    }
+    function renderThreats() {
+      const query = state.query.toLowerCase();
+      const matches = state.threats.filter(t => (state.source === 'all' || t.source === state.source) && (!query || JSON.stringify([t.external_id,t.title,t.product,t.vendor,t.description,t.iocs]).toLowerCase().includes(query)));
+      const threats = matches.slice(0, state.visibleLimit);
+      els.empty.classList.toggle('hidden', matches.length !== 0);
+      const loadMore = document.querySelector('#load-more'); loadMore.classList.toggle('hidden', threats.length >= matches.length); loadMore.textContent = `Load more intelligence (${matches.length - threats.length} remaining)`;
+      els.list.innerHTML = threats.map((t, index) => threatCard(t, index)).join('');
+      document.querySelectorAll('[data-triage-index]').forEach(button => button.addEventListener('click', () => openModal(threats[Number(button.dataset.triageIndex)], button)));
+      document.querySelectorAll('[data-copy-rule]').forEach(button => button.addEventListener('click', () => copyRule(threats[Number(button.dataset.copyRule)], button)));
+    }
+    function threatCard(t, index) {
+      const techniques = (t.mitre_techniques || []).length ? t.mitre_techniques.map(m => `<span class="mono rounded-md border border-cyan-500/25 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-700 dark:text-cyan-300" title="${escapeHtml(m.name)}">${escapeHtml(m.id)} · ${escapeHtml(m.name)}</span>`).join('') : '<span class="text-xs muted">No keyword-derived techniques</span>';
+      const iocs = (t.iocs || []).length ? t.iocs.map(i => `<span class="mono max-w-full truncate rounded-md border border-token bg-[var(--muted)] px-2 py-1 text-[10px]" title="${escapeHtml(i.value)}">${escapeHtml(i.type)}: ${escapeHtml(i.value)}</span>`).join('') : '<span class="text-xs muted">No indicators published with this record</span>';
+      return `<article class="threat-card surface overflow-hidden rounded-2xl border-t-2 source-${slug(t.source)}"><div class="grid lg:grid-cols-2"><div class="p-5 sm:p-6"><div class="flex flex-wrap items-center gap-2"><span class="mono rounded-md border px-2 py-1 text-[10px] font-bold uppercase severity-${escapeHtml(t.severity)}">${escapeHtml(t.severity)}</span><span class="mono text-[10px] uppercase tracking-wider muted">${escapeHtml(t.source)} · ${escapeHtml(t.external_id || t.kind)}</span></div><h3 class="mt-4 text-lg font-bold leading-snug sm:text-xl">${escapeHtml(t.title)}</h3><div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs muted"><span>${escapeHtml(t.vendor)} / ${escapeHtml(t.product)}</span><span>Added ${escapeHtml(formatDate(t.date_added))}</span></div><p class="mt-5 line-clamp-4 text-sm leading-6 muted">${escapeHtml(t.description)}</p><div class="mt-5"><p class="mono mb-2 text-[10px] font-semibold uppercase tracking-widest muted">MITRE ATT&CK mapping</p><div class="flex flex-wrap gap-2">${techniques}</div></div></div><div class="border-t border-token bg-[var(--muted)]/30 p-5 sm:p-6 lg:border-l lg:border-t-0"><p class="mono text-[10px] font-semibold uppercase tracking-widest text-[var(--primary)]">Actionable remediation</p><p class="mt-3 text-sm leading-6">${escapeHtml(t.remediation)}</p><a href="${safeUrl(t.patch_url)}" target="_blank" rel="noopener noreferrer" class="focusable mt-4 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-token bg-[var(--card)] px-3 py-2 text-xs font-bold transition-colors hover:border-red-400">Open vendor guidance <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5m0-5-9 9"/><path d="M19 13v6H5V5h6"/></svg></a><div class="mt-5"><p class="mono mb-2 text-[10px] font-semibold uppercase tracking-widest muted">Extracted indicators</p><div class="flex flex-wrap gap-2">${iocs}</div></div><div class="mt-5 rounded-xl border border-dashed border-token bg-[var(--card)] p-3"><div class="flex items-center justify-between gap-3"><div><p class="mono text-[10px] font-semibold uppercase tracking-widest muted">Detection starter</p><p class="mt-1 text-xs muted">Experimental Sigma scaffold · review required</p></div><button type="button" data-copy-rule="${index}" class="focusable min-h-11 cursor-pointer rounded-lg px-3 text-xs font-semibold text-[var(--primary)] hover:bg-red-500/10">Copy rule</button></div></div><button type="button" data-triage-index="${index}" class="focusable mt-4 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--secondary)] px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"><svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4.5 6v5.4c0 4.5 3.2 7.8 7.5 9.6 4.3-1.8 7.5-5.1 7.5-9.6V6L12 3Z"/><path d="M9 12h6m-3-3v6"/></svg>Simulate Incident Response</button></div></div></article>`;
+    }
+    async function copyRule(threat, button) {
+      try { await navigator.clipboard.writeText(threat.detection_starter); button.textContent = 'Copied'; setTimeout(() => button.textContent = 'Copy rule', 1800); }
+      catch { button.textContent = 'Copy failed'; setTimeout(() => button.textContent = 'Copy rule', 1800); }
+    }
+    function openModal(threat, trigger) {
+      state.lastFocus = trigger; els.modalThreat.textContent = `${threat.external_id || threat.kind} · ${threat.product}`;
+      els.playbook.innerHTML = (threat.playbook || []).map((step, i) => `<section class="grid grid-cols-[2.5rem_1fr] gap-3 rounded-xl border border-token p-4"><span class="mono grid h-10 w-10 place-items-center rounded-lg ${i === 0 ? 'bg-red-500/10 text-[var(--primary)]' : i === 1 ? 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300' : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'} text-sm font-bold">0${i+1}</span><div><p class="mono text-[10px] font-semibold uppercase tracking-widest muted">${escapeHtml(step.phase)}</p><h3 class="mt-1 font-bold">${escapeHtml(step.title)}</h3><p class="mt-2 text-sm leading-6 muted">${escapeHtml(step.action)}</p>${step.query ? `<div class="mono mt-3 overflow-x-auto rounded-lg bg-slate-950 p-3 text-[11px] leading-5 text-slate-200">${escapeHtml(step.query)}</div>` : ''}${step.link ? `<a href="${safeUrl(step.link)}" target="_blank" rel="noopener noreferrer" class="focusable mt-3 inline-flex min-h-11 items-center text-xs font-bold text-[var(--primary)]">Open remediation reference →</a>` : ''}</div></section>`).join('');
+      els.modal.classList.remove('hidden'); els.modal.classList.add('flex'); document.body.style.overflow = 'hidden'; document.querySelector('#modal-close').focus();
+    }
+    function closeModal() { els.modal.classList.add('hidden'); els.modal.classList.remove('flex'); document.body.style.overflow = ''; state.lastFocus?.focus(); }
+    document.querySelector('#modal-close').addEventListener('click', closeModal);
+    els.modal.addEventListener('click', event => { if (event.target === els.modal) closeModal(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !els.modal.classList.contains('hidden')) closeModal();
+      if (event.key === 'Tab' && !els.modal.classList.contains('hidden')) { const focusable = [...els.modal.querySelectorAll('button,a[href]')]; const first = focusable[0], last = focusable.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
+    });
+    let searchTimer;
+    document.querySelector('#search-input').addEventListener('input', event => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.query = event.target.value.trim(); state.visibleLimit = 15; renderThreats(); }, 150); });
+    document.querySelector('#source-filter').addEventListener('change', event => { state.source = event.target.value; state.visibleLimit = 15; renderThreats(); });
+    document.querySelector('#load-more').addEventListener('click', () => { state.visibleLimit += 15; renderThreats(); });
+    document.querySelector('#refresh-button').addEventListener('click', loadThreats);
+    document.querySelector('#theme-toggle').addEventListener('click', event => { const dark = !document.documentElement.classList.contains('dark'); document.documentElement.classList.toggle('dark', dark); localStorage.setItem('vanguard-theme', dark ? 'dark' : 'light'); event.currentTarget.setAttribute('aria-pressed', String(dark)); event.currentTarget.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`); });
+    const initialDark = document.documentElement.classList.contains('dark'); document.querySelector('#theme-toggle').setAttribute('aria-pressed', String(initialDark)); document.querySelector('#theme-toggle').setAttribute('aria-label', `Switch to ${initialDark ? 'light' : 'dark'} theme`);
+    loadThreats();
+  </script>
+</body>
+</html>
