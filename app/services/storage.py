@@ -1,8 +1,8 @@
 """Bounded local history for threat records.
 
-SQLite is deliberately used here because it is free and requires no service. On Render's
-Free web plan the filesystem is ephemeral, so this module treats persistence as a best-
-effort enhancement and never lets a database error take down the API.
+SQLite is deliberately used here because it is free and requires no service. On serverless
+hosting the filesystem is ephemeral, so this module treats persistence as a best-effort
+enhancement and never lets a database error take down the API.
 """
 
 from __future__ import annotations

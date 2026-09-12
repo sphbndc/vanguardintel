@@ -12,8 +12,6 @@ const sourceLogos = [
   { name: "NVD enrichment", image: "/sources/nvd.svg" },
 ];
 
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
-
 function formatDate(value?: string) {
   if (!value) return "Awaiting snapshot";
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -37,7 +35,7 @@ export default function App() {
   const loadThreats = useCallback(async () => {
     setLoading(true); setError("");
     try {
-      const response = await fetch(`${apiBaseUrl}/api/v1/threats`, { headers: { Accept: "application/json" } });
+      const response = await fetch("/api/v1/threats", { headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error(`API returned ${response.status}`);
       setData(await response.json() as ThreatResponse);
     } catch (caught) {
@@ -90,7 +88,7 @@ export default function App() {
 
         <LogoCloudMarquee title="Open sources. One defensive picture." description="Public vulnerability catalogs, community telemetry, vendor advisories, and ATT&CK context are normalized into one analyst-ready workflow." data={sourceLogos} className="border-b border-[var(--border)] py-16 md:py-20" />
 
-        <div className="mx-auto max-w-[1480px] px-4 pt-6 sm:px-6 lg:px-8"><div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-xs leading-5 text-cyan-900 dark:text-cyan-100" role="note"><strong>Prototype data policy:</strong> threat history is retained for {data?.storage?.retention_days ?? 90} days on a best-effort basis. Vercel and Render Free use ephemeral filesystems, so local SQLite history can reset after function replacement or service restart.</div></div>
+        <div className="mx-auto max-w-[1480px] px-4 pt-6 sm:px-6 lg:px-8"><div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-xs leading-5 text-cyan-900 dark:text-cyan-100" role="note"><strong>Prototype data policy:</strong> threat history is retained for {data?.storage?.retention_days ?? 90} days on a best-effort basis. Vercel's serverless filesystem is ephemeral, so local SQLite history can reset after function replacement.</div></div>
 
         <section className="mx-auto max-w-[1480px] px-4 py-8 sm:px-6 lg:px-8" aria-label="Threat summary"><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[["Total signals", data?.stats.total, ""],["Critical", data?.stats.critical, "text-[var(--primary)]"],["High priority", data?.stats.high, "text-amber-600 dark:text-amber-300"],["Sources online", data?.stats.sources_operational, "text-emerald-600 dark:text-emerald-400"]].map(([label,value,color]) => <article key={String(label)} className="surface rounded-xl p-4"><p className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">{label}</p><p className={`mt-2 text-3xl font-extrabold ${color}`}>{loading ? "—" : Number(value ?? 0).toLocaleString()}</p></article>)}</div></section>
 

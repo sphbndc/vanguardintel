@@ -14,7 +14,7 @@ Vanguard Intel is a FastAPI backend with a React/TypeScript dashboard (plus a Ji
 
 ## Current project state
 
-The current production target is a single Vercel project: Vercel builds `frontend/` and runs the FastAPI application as a Python Function. The Docker/Render deployment remains available as an alternative in `Dockerfile` and `render.yaml`.
+The current production target is a single Vercel project: Vercel builds `frontend/` and runs the FastAPI application as a Python Function.
 
 - GitHub repository: <https://github.com/sphbndc/vanguardintel>
 - Dashboard route: `/`
@@ -24,7 +24,7 @@ The current production target is a single Vercel project: Vercel builds `fronten
 - CISA KEV and GitHub advisories work without private credentials. AlienVault OTX requires your own `OTX_API_KEY`; without it the source is marked `unconfigured`.
 - A source timeout produces `degraded` status while the other sources continue to load. OTX can be slower than the other feeds; set `HTTP_TIMEOUT_SECONDS=30` in Vercel if necessary.
 - Threat observations are cached for 15 minutes. Refreshing during that window normally returns the cached snapshot.
-- SQLite history is retained for up to 90 days on a best-effort basis. Vercel and Render Free filesystems are ephemeral, so history can reset after function replacement or service restart.
+- SQLite history is retained for up to 90 days on a best-effort basis. Vercel's serverless filesystem is ephemeral, so history can reset after function replacement.
 - The application provides recommendations and analyst starting points only. It does not automatically isolate hosts, block indicators, or install patches.
 
 ## How an analyst uses Vanguard Intel
@@ -54,30 +54,6 @@ Vanguard Intel does not make production changes for you. An analyst implements t
 
 The generated query and Sigma rule are templates. Field names differ between Splunk, Elastic, Sentinel, Chronicle, and other SIEMs, so adapt them to your local schema.
 
-## Run locally
-
-Python 3.11+ is recommended.
-
-```powershell
-py -3 -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-Copy-Item .env.example .env
-uvicorn app.main:app --reload
-```
-
-Build the React dashboard once, then start FastAPI:
-
-```powershell
-cd frontend
-npm install
-npm run build
-cd ..
-uvicorn app.main:app --reload
-```
-
-Open <http://127.0.0.1:8000>. FastAPI serves the built React dashboard at `/`; the JSON feed remains available at <http://127.0.0.1:8000/api/v1/threats>.
-
 ## Configuration
 
 | Variable | Required | Purpose |
@@ -85,7 +61,6 @@ Open <http://127.0.0.1:8000>. FastAPI serves the built React dashboard at `/`; t
 | `OTX_API_KEY` | No | Enables the authenticated `/pulses/subscribed` OTX collection. Without it, OTX reports `unconfigured`. |
 | `GITHUB_TOKEN` | No | Raises GitHub API rate limits. Public advisories work without a token. |
 | `HTTP_TIMEOUT_SECONDS` | No | Overall upstream request timeout; defaults to 12 seconds. |
-| `FRONTEND_ORIGINS` | No | Comma-separated HTTPS origins allowed to call the API when hosting the frontend separately (for example, Vercel). |
 | `THREAT_RETENTION_DAYS` | No | SQLite retention window; defaults to 90 days. |
 | `MAX_API_RECORDS` | No | Maximum number of historical records returned by the API; defaults to 250. |
 | `DATABASE_PATH` | No | SQLite location. On Vercel, unset values default to writable `/tmp/vanguardintel.db`. |
@@ -104,16 +79,6 @@ The generated detection rule and response checklist are analyst starting points,
 
 The React/TypeScript dashboard lives under `frontend/` and contains the shadcn-compatible logo marquee and actionability matrix. See [`frontend/README.md`](frontend/README.md) for development setup. `npm run build` produces the files FastAPI serves at the main `/` route; `npm run dev` remains available for hot-reload development on port 5173.
 
-## Render Free deployment
-
-The repository includes a multi-stage [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). In Render, choose **New → Blueprint**, connect this repository, and deploy the blueprint. Render builds the React bundle into the Docker image, serves it through FastAPI, and uses `/health` for health checks. Add `OTX_API_KEY` and `GITHUB_TOKEN` as secret environment variables in the Render dashboard when available.
-
-Serverless/free hosting filesystems are ephemeral: local SQLite files can be lost when a function or service is redeployed, restarted, or scaled to a fresh instance. This project therefore treats SQLite history as a best-effort 90-day window and shows that limitation in the dashboard. Use an external managed PostgreSQL database for durable history.
-
 ## Vercel-only deployment
 
 The repository includes [`vercel.json`](vercel.json). Import the GitHub repository as one Vercel project from the repository root; Vercel builds `frontend/` and detects the FastAPI instance in `app/main.py` as a Python Function. Add `OTX_API_KEY` and optional `GITHUB_TOKEN` in Vercel environment variables. Vercel automatically defaults SQLite to `/tmp/vanguardintel.db` when `DATABASE_PATH` is not set. The `/api/v1/threats` endpoint and dashboard are served from the same Vercel domain. Local SQLite remains ephemeral on Vercel, so use PostgreSQL when threat history must survive function replacement.
-
-## Optional split frontend
-
-If you keep Render as the backend and host only the frontend on Vercel, import this repository with root directory `frontend`, build command `npm run build`, and output directory `dist`. Set `VITE_API_BASE_URL` to the deployed Render URL, then set `FRONTEND_ORIGINS` on Render to the exact Vercel origin.
