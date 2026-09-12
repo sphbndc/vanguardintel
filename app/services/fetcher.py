@@ -62,6 +62,15 @@ def _source_failure(source: str, exc: Exception) -> SourceResult:
     return SourceResult(source, "degraded", [], _now(), f"Upstream unavailable: {type(exc).__name__}")
 
 
+def _timeout_seconds() -> float:
+    """Parse the optional timeout defensively; blank dashboard variables are common."""
+    raw_value = os.getenv("HTTP_TIMEOUT_SECONDS", "12").strip()
+    try:
+        return max(1.0, float(raw_value or "12"))
+    except ValueError:
+        return 12.0
+
+
 async def fetch_cisa_kev(client: httpx.AsyncClient, limit: int = 40) -> SourceResult:
     try:
         response = await client.get(CISA_KEV_URL)
@@ -200,7 +209,7 @@ async def fetch_github_advisories(client: httpx.AsyncClient, limit: int = 20) ->
 
 async def fetch_all_sources() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Fetch all sources concurrently and return enriched threats plus source health."""
-    timeout = httpx.Timeout(float(os.getenv("HTTP_TIMEOUT_SECONDS", "12")), connect=5.0)
+    timeout = httpx.Timeout(_timeout_seconds(), connect=5.0)
     limits = httpx.Limits(max_connections=10, max_keepalive_connections=5)
     headers = {"User-Agent": "vanguardintel/1.0 (+security-research-dashboard)"}
     async with httpx.AsyncClient(timeout=timeout, limits=limits, follow_redirects=True, headers=headers) as client:

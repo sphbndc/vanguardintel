@@ -106,9 +106,18 @@ class ThreatCache:
         return result
 
 
+def _safe_env_int(name: str, default: int) -> int:
+    """Return a positive integer even when a hosting dashboard value is blank/invalid."""
+    raw_value = os.getenv(name, "").strip()
+    try:
+        return max(1, int(raw_value or str(default)))
+    except ValueError:
+        return default
+
+
 storage = ThreatStorage(
-    retention_days=int(os.getenv("THREAT_RETENTION_DAYS", "90")),
-    max_api_records=int(os.getenv("MAX_API_RECORDS", "250")),
+    retention_days=_safe_env_int("THREAT_RETENTION_DAYS", 90),
+    max_api_records=_safe_env_int("MAX_API_RECORDS", 250),
 )
 cache = ThreatCache()
 
