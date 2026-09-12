@@ -46,7 +46,7 @@ class ThreatStorage:
         return {
             "engine": "sqlite",
             "retention_days": self.retention_days,
-            "durability": "ephemeral filesystem on Render Free",
+            "durability": "ephemeral serverless filesystem; use PostgreSQL for durable history",
             "database_path": str(self.path),
         }
 

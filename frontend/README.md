@@ -32,9 +32,9 @@ Open <http://localhost:5173>. Vite proxies `/api` requests to the FastAPI server
 
 For the integrated production-style route, run `npm run build` and open <http://127.0.0.1:8000>. FastAPI serves `frontend/dist/index.html`, its compiled assets, and the local OSINT source icons directly.
 
-The repository also includes a Docker-based Render Free deployment. The multi-stage image builds this frontend and packages it with FastAPI; see the root [`render.yaml`](../render.yaml) and [`Dockerfile`](../Dockerfile). SQLite history is intentionally ephemeral on Render Free.
+The repository also includes a Docker-based Render Free deployment. The multi-stage image builds this frontend and packages it with FastAPI; see the root [`render.yaml`](../render.yaml) and [`Dockerfile`](../Dockerfile). SQLite history is intentionally ephemeral on free/serverless hosting.
 
-For an optional separate Vercel deployment, use `frontend` as the project root, `npm run build` as the build command, and `dist` as the output directory. Set `VITE_API_BASE_URL` to the Render API origin; configure the matching Vercel origin in Render's `FRONTEND_ORIGINS` variable.
+For a Vercel-only deployment, import the repository root so Vercel can detect `app/main.py` as the FastAPI Function and use the root `vercel.json`. For a split frontend-only deployment, use `frontend` as the project root, `npm run build` as the build command, and `dist` as the output directory. Set `VITE_API_BASE_URL` to the Render API origin only for that split setup.
 
 ## Starting from a fresh React app
 

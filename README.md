@@ -63,8 +63,12 @@ The React/TypeScript dashboard lives under `frontend/` and contains the shadcn-c
 
 The repository includes a multi-stage [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml). In Render, choose **New → Blueprint**, connect this repository, and deploy the blueprint. Render builds the React bundle into the Docker image, serves it through FastAPI, and uses `/health` for health checks. Add `OTX_API_KEY` and `GITHUB_TOKEN` as secret environment variables in the Render dashboard when available.
 
-The free plan has an ephemeral filesystem: Render documents that local SQLite files are lost when a service redeploys, restarts, or spins down. This project therefore treats SQLite history as a best-effort 90-day window and shows that limitation in the dashboard. A persistent Render disk requires a paid service; an external managed PostgreSQL database is the durable upgrade path.
+Serverless/free hosting filesystems are ephemeral: local SQLite files can be lost when a function or service is redeployed, restarted, or scaled to a fresh instance. This project therefore treats SQLite history as a best-effort 90-day window and shows that limitation in the dashboard. Use an external managed PostgreSQL database for durable history.
 
-## Optional Vercel frontend
+## Vercel-only deployment
 
-Render is the recommended full-stack deployment. If you also want a separate Vercel frontend, import this repository in Vercel with the root directory set to `frontend`, build command `npm run build`, and output directory `dist`. Set `VITE_API_BASE_URL` to the deployed Render URL, then set `FRONTEND_ORIGINS` on Render to the exact Vercel origin (for example, `https://vanguardintel.vercel.app`).
+The repository includes [`vercel.json`](vercel.json). Import the GitHub repository as one Vercel project from the repository root; Vercel builds `frontend/` and detects the FastAPI instance in `app/main.py` as a Python Function. Add `OTX_API_KEY`, optional `GITHUB_TOKEN`, and `DATABASE_PATH=/tmp/vanguardintel.db` in Vercel environment variables. The `/api/v1/threats` endpoint and dashboard are served from the same Vercel domain. Local SQLite remains ephemeral on Vercel, so use PostgreSQL when threat history must survive function replacement.
+
+## Optional split frontend
+
+If you keep Render as the backend and host only the frontend on Vercel, import this repository with root directory `frontend`, build command `npm run build`, and output directory `dist`. Set `VITE_API_BASE_URL` to the deployed Render URL, then set `FRONTEND_ORIGINS` on Render to the exact Vercel origin.
