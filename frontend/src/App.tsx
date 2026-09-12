@@ -42,8 +42,25 @@ function MatrixPage({ data, loading, error, degraded, query, setQuery, source, s
 
 function Footer() { return <footer className="border-t border-[var(--border)]"><div className="mx-auto flex max-w-[1480px] flex-col gap-3 px-4 py-8 text-xs text-[var(--muted-foreground)] sm:flex-row sm:justify-between sm:px-6 lg:px-8"><p>Vanguard Intel · SOC automation prototype</p><p className="font-mono">CISA KEV · AlienVault OTX · GitHub Advisory Database</p></div></footer>; }
 
+function readStoredTheme(): "dark" | "light" {
+  try {
+    return window.localStorage.getItem("vanguard-theme") === "light" ? "light" : "dark";
+  } catch {
+    // Blocked storage must not prevent the dashboard from rendering.
+    return "dark";
+  }
+}
+
+function storeTheme(theme: "dark" | "light") {
+  try {
+    window.localStorage.setItem("vanguard-theme", theme);
+  } catch {
+    // Persistence is optional; rendering continues when storage is unavailable.
+  }
+}
+
 export default function App() {
-  const [dark, setDark] = useState(() => localStorage.getItem("vanguard-theme") !== "light");
+  const [dark, setDark] = useState(() => readStoredTheme() === "dark");
   const [data, setData] = useState<ThreatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,7 +68,7 @@ export default function App() {
   const [source, setSource] = useState("all");
   const [visibleLimit, setVisibleLimit] = useState(15);
   const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
-  useEffect(() => { document.documentElement.classList.toggle("dark", dark); localStorage.setItem("vanguard-theme", dark ? "dark" : "light"); }, [dark]);
+  useEffect(() => { document.documentElement.classList.toggle("dark", dark); storeTheme(dark ? "dark" : "light"); }, [dark]);
   const loadThreats = useCallback(async () => { setLoading(true); setError(""); try { const response = await fetch("/api/v1/threats", { headers: { Accept: "application/json" } }); if (!response.ok) throw new Error(`API returned ${response.status}`); setData(await response.json() as ThreatResponse); } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to reach the intelligence API"); } finally { setLoading(false); } }, []);
   useEffect(() => { void loadThreats(); }, [loadThreats]);
   const matches = useMemo(() => { const needle = query.trim().toLowerCase(); return (data?.threats ?? []).filter((threat) => (source === "all" || threat.source === source) && (!needle || JSON.stringify([threat.external_id, threat.title, threat.vendor, threat.product, threat.description, threat.iocs]).toLowerCase().includes(needle))); }, [data, query, source]);
