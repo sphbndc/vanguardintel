@@ -67,7 +67,7 @@ Serverless/free hosting filesystems are ephemeral: local SQLite files can be los
 
 ## Vercel-only deployment
 
-The repository includes [`vercel.json`](vercel.json). Import the GitHub repository as one Vercel project from the repository root; Vercel builds `frontend/` and detects the FastAPI instance in `app/main.py` as a Python Function. Add `OTX_API_KEY`, optional `GITHUB_TOKEN`, and `DATABASE_PATH=/tmp/vanguardintel.db` in Vercel environment variables. The `/api/v1/threats` endpoint and dashboard are served from the same Vercel domain. Local SQLite remains ephemeral on Vercel, so use PostgreSQL when threat history must survive function replacement.
+The repository includes [`vercel.json`](vercel.json). Import the GitHub repository as one Vercel project from the repository root; Vercel builds `frontend/` and detects the FastAPI instance in `app/main.py` as a Python Function. Add `OTX_API_KEY` and optional `GITHUB_TOKEN` in Vercel environment variables. Vercel automatically defaults SQLite to `/tmp/vanguardintel.db` when `DATABASE_PATH` is not set. The `/api/v1/threats` endpoint and dashboard are served from the same Vercel domain. Local SQLite remains ephemeral on Vercel, so use PostgreSQL when threat history must survive function replacement.
 
 ## Optional split frontend
 

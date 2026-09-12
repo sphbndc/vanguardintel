@@ -36,7 +36,8 @@ class ThreatStorage:
     def __init__(self, retention_days: int = 90, max_api_records: int = 250) -> None:
         self.retention_days = max(1, retention_days)
         self.max_api_records = max(1, max_api_records)
-        configured_path = os.getenv("DATABASE_PATH", "data/vanguardintel.db")
+        default_path = "/tmp/vanguardintel.db" if os.getenv("VERCEL") else "data/vanguardintel.db"
+        configured_path = os.getenv("DATABASE_PATH", default_path)
         self.path = Path(configured_path)
         self._lock = asyncio.Lock()
         self._initialized = False
