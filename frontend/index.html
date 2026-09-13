@@ -12,14 +12,22 @@
       <div style="min-height:100vh;background:#0d0e12;color:#fcfcfc;display:grid;place-items:center;font-family:Inter,system-ui,sans-serif">
         <div style="text-align:center;padding:2rem">
           <div style="display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;border-radius:.75rem;background:#ff2e2e;font-weight:800">V</div>
-          <p style="margin:.9rem 0 0;font-size:.75rem;letter-spacing:.18em;font-weight:700">VANGUARD INTEL</p>
-          <p style="margin:.6rem 0 0;color:#a1a1aa;font-size:.85rem">Loading intelligence fabric…</p>
+          <p style="margin:.9rem 0 0;font-size:.75rem;letter-spacing:.18em;font-weight:700">VANGUARDINTEL</p>
+          <p id="boot-status" style="margin:.6rem 0 0;color:#a1a1aa;font-size:.85rem">Loading intelligence fabric…</p>
         </div>
       </div>
     </div>
     <noscript>
       <div style="padding:2rem;font-family:system-ui,sans-serif">Vanguard Intel requires JavaScript to display the dashboard.</div>
     </noscript>
+    <script>
+      window.setTimeout(function () {
+        var root = document.getElementById("root");
+        var status = document.getElementById("boot-status");
+        if (root && status && root.querySelector("header")) return;
+        if (status) status.textContent = "The dashboard could not start. Refresh this page to retry.";
+      }, 15000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
